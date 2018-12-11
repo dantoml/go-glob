@@ -96,6 +96,43 @@ func TestGlob(t *testing.T) {
 	}
 }
 
+func TestGlobWithDifference(t *testing.T) {
+	tests := []struct {
+		pattern    string
+		difference int
+	}{
+		{
+			pattern:    "*test",
+			difference: 13,
+		},
+		{
+			pattern:    "this*",
+			difference: 13,
+		},
+		{
+			pattern:    "this*test",
+			difference: 9,
+		},
+		{
+			pattern:    "*Ѿ*",
+			difference: 16,
+		},
+	}
+
+	for _, tc := range tests {
+		subj := "this is a ϗѾ test"
+		match, diff := GlobWithDifference(tc.pattern, subj)
+		if !match {
+			t.Fatalf("%s should match %s", tc.pattern, subj)
+		}
+
+		if diff != tc.difference {
+			t.Fatalf("pattern %s should have a difference of %d, got: %d",
+				tc.pattern, tc.difference, diff)
+		}
+	}
+}
+
 func BenchmarkGlob(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		if !Glob("*quick*fox*dog", "The quick brown fox jumped over the lazy dog") {
